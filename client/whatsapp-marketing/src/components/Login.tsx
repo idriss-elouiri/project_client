@@ -2,23 +2,30 @@
 
 import { useRouter } from "next/navigation";
 import { useState, ChangeEvent, FormEvent } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
+import type { RootState } from "../redux/store";
 
 type Credentials = {
-  username: string;
   email: string;
   password: string;
 };
 
-export default function Register() {
+export default function Login() {
   const [credentials, setCredentials] = useState<Credentials>({
-    username: "",
     email: "",
     password: "",
   });
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const { loading, error: errorMessage } = useSelector(
+    (state: RootState) => state.user
+  );
+  const dispatch = useDispatch();
   const router = useRouter();
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,49 +34,38 @@ export default function Register() {
     setCredentials((prev) => ({ ...prev, [id]: value.trim() }));
   };
 
-  const validateForm = (): boolean => {
-    const { username, email, password } = credentials;
-
-    if (!username || !email || !password) {
-      setErrorMessage("All fields are required.");
-      return false;
-    }
-
-    if (!/^[\w.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-      setErrorMessage("Invalid email address.");
-      return false;
-    }
-
-    return true;
-  };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
-
-    setLoading(true);
-    setErrorMessage(null);
+    // Check if all fields are filled
+    if (!credentials.email || !credentials.password) {
+      dispatch(signInFailure("Please fill in all the fields"));
+      return;
+    }
 
     try {
-      const res = await fetch(`${apiUrl}/api/auth/register`, {
+      dispatch(signInStart());
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
+      const data = await response.json();
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setErrorMessage(data.message || "Registration failed.");
-      } else {
-        router.push("/log-in");
+      if (!response.ok) {
+        dispatch(signInFailure(data.message || "Login failed"));
+        return;
       }
-    } catch (error) {
-      setErrorMessage("An error occurred. Please try again later.");
-    } finally {
-      setLoading(false);
+
+      dispatch(signInSuccess(data));
+      router.push("/");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        dispatch(signInFailure(error.message));
+      } else {
+        dispatch(signInFailure("An unknown error occurred."));
+      }
     }
   };
 
@@ -107,21 +103,6 @@ export default function Register() {
           {/* Google Sign-In Button */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                value={credentials.username}
-                onChange={handleChange}
-                className="mt-1 block p-1 w-full rounded-md border border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
             <div>
               <label
                 htmlFor="email"
