@@ -1,8 +1,12 @@
+// Dependencies
 import express from "express";
 import cors from "cors";
 import { connectDb } from "./config/db.js";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+// Routes
+import authRouter from "./modules/auth/auth.route.js";
+
 
 const app = express();
 dotenv.config();
@@ -20,6 +24,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Routes
+app.use("/api/auth", authRouter);
 
 // Health check endpoint
 app.get("/health", (req, res) => {
