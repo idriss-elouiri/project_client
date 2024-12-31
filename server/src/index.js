@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 // Routes
 import authRouter from "./modules/auth/auth.route.js";
+import userRouter from "./modules/user/user.route.js";
+
 
 
 const app = express();
@@ -27,6 +29,7 @@ app.use(
 
 // Routes
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

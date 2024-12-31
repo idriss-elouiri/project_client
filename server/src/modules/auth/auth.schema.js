@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const registerShcema = z.object({
-  name: z.string({ required_error: "الاسم مطلوب" }),
+  username: z.string({ required_error: "الاسم مطلوب" }),
   email: z
     .string({ required_error: "البريد الإلكتروني مطلوب" })
     .email({ message: "البريد الإلكتروني غير صحيح" }),
