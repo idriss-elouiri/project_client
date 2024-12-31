@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
+import Link from "next/link";
 
 type Credentials = {
   username: string;
@@ -64,7 +65,7 @@ export default function Register() {
       if (!res.ok) {
         setErrorMessage(data.message || "Registration failed.");
       } else {
-        router.push("/log-in");
+        router.push("/Login");
       }
     } catch (error) {
       setErrorMessage("An error occurred. Please try again later.");
@@ -82,6 +83,7 @@ export default function Register() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="flex max-w-4xl w-full shadow-lg rounded-lg overflow-hidden">
         {/* Left side with image */}
+
         <div className="hidden md:block w-1/2 bg-blue-600 relative">
           <Image
             src="/images/contact_img.webp"
@@ -168,26 +170,18 @@ export default function Register() {
             >
               {loading ? "Processing..." : "Register"}
             </button>
-            <span className="text-center flex justify-center w-full ">or</span>
-            <button
-              onClick={handleGoogleSignIn}
-              className="flex items-center justify-center w-full py-2 px-4 mb-6 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 shadow-md"
-            >
-              <FcGoogle className="mr-2" size={20} />
-              Sign in with Google
-            </button>
           </form>
 
           {/* Links for sign-up and password reset */}
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>
               Already have an account?{" "}
-              <a
-                href="/log-in"
+              <Link
+                href="/Login"
                 className="text-blue-600 hover:text-blue-800 font-medium"
               >
                 Log in
-              </a>
+              </Link>
             </p>
           </div>
         </div>
